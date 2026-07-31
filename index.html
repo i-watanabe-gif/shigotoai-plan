@@ -1,0 +1,353 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#6D39AB">
+<title>学習プラン｜シゴトAI</title>
+<style>
+  :root{
+    /* シゴトAI本体サイト準拠。3系統＋グレースケールに抑える */
+    --brand:#6D39AB;          /* ブランド紫（本体サイトより） */
+    --brand-deep:#5A2E90;
+    --brand-tint:#F4EFFA;     /* 紫のごく薄い面 */
+    --ground:#FFFFFF;
+    --surface:#FFFFFF;
+    --surface-2:#FAFAFA;
+    --text:#1A1A1A;
+    --text-2:#6C6C6C;         /* 本体サイトの rgb(108,108,108) */
+    --line:#E3E3E3;           /* 本体サイトの rgb(227,227,227) */
+    --note:#8E6B1F;           /* 注意書き（彩度を落とした金茶） */
+    --note-tint:#FBF6EA;
+    /* 間隔は5段階に固定 */
+    --s1:8px; --s2:16px; --s3:28px; --s4:48px; --s5:72px;
+    --r-s:6px; --r-m:8px;     /* 角丸は本体サイトに合わせて控えめに */
+  }
+  *{box-sizing:border-box}
+  html{
+    -webkit-text-size-adjust:100%;   /* iOS横向きで文字が勝手に拡大されるのを防ぐ */
+    text-size-adjust:100%;
+    overflow-x:hidden;               /* 端末差で1pxはみ出しても横スクロールを出さない */
+  }
+  body{
+    margin:0;background:var(--ground);color:var(--text);
+    font-family:"SF Pro Text",-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+    font-size:16.5px;line-height:1.85;letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased;
+    /* 端末のフォント差で長い講義名がはみ出さないようにする */
+    overflow-wrap:break-word;
+    word-break:normal;
+    line-break:strict;               /* 日本語の禁則処理（行頭の句読点を防ぐ） */
+  }
+  .wrap{
+    max-width:640px;margin:0 auto;
+    /* iPhoneのノッチ/ホームバーを避ける（未対応端末では 20px にフォールバック） */
+    padding:0 max(20px, env(safe-area-inset-left)) calc(var(--s5) + env(safe-area-inset-bottom));
+    padding-right:max(20px, env(safe-area-inset-right));
+  }
+  /* PC: 本文カラムとサイドバーの2カラム */
+  @media (min-width:900px){
+    .wrap{max-width:1040px;padding:0 40px var(--s5);
+      display:grid;grid-template-columns:1fr 300px;
+      grid-template-areas:"head side" "body side";
+      column-gap:var(--s4);align-items:start}
+    .top{grid-area:head}
+    .main{grid-area:body;min-width:0}
+  }
+
+  /* ── ヘッダー ───────────────────────────── */
+  .top{border-bottom:1px solid var(--line);padding:var(--s3) 0 var(--s2);margin-bottom:var(--s3)}
+  .brandline{display:flex;align-items:center;gap:9px;font-size:12.5px;
+    letter-spacing:.1em;color:var(--brand);font-weight:600}
+  .brandline::before{content:"";width:3px;height:14px;background:var(--brand);border-radius:2px}
+  h1{font-size:25px;line-height:1.55;margin:var(--s2) 0 var(--s1);
+    font-weight:600;letter-spacing:-.01em}
+  h1 .nm{color:var(--brand)}
+  .lead{margin:0;color:var(--text-2);font-size:15px}
+
+  /* ── 進捗サマリー ─────────────────────────── */
+  .summary{border:1px solid var(--line);border-radius:var(--r-m);
+    padding:var(--s3) var(--s2);margin-bottom:var(--s3)}
+  .summary-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2)}
+  .summary-label{font-size:13.5px;color:var(--text-2)}
+  .summary-total{font-size:15px;color:var(--text-2)}
+  .summary-total b{font-size:27px;color:var(--text);font-weight:600;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin:var(--s2) 0 10px}
+  .bar > i{display:block;height:100%;width:0;background:var(--brand);
+    border-radius:99px;transition:width .5s ease}
+  .progress-text{font-size:13.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+  .progress-text b{color:var(--text);font-weight:600}
+  .goal{margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;font-size:14px}
+  .goal .k{color:var(--text-2)}
+  .goal .v{color:var(--brand);font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* ── やりたいこと ─────────────────────────── */
+  .aims{background:var(--brand-tint);border-radius:var(--r-m);
+    padding:var(--s2) var(--s2) 18px;margin-bottom:var(--s4)}
+  .aims h2{font-size:14px;margin:0 0 10px;color:var(--brand-deep);
+    font-weight:600;letter-spacing:.02em}
+  .aims ul{margin:0;padding-left:1.15em}
+  .aims li{margin:5px 0;font-size:15px;line-height:1.75}
+
+  /* ── STEP ─────────────────────────────── */
+  .step{margin-bottom:var(--s4)}
+  .step-head{margin-bottom:var(--s2)}
+  .step-meta{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .step-no{font-size:11.5px;letter-spacing:.1em;color:var(--brand);font-weight:700}
+  .step-rule{flex:1;height:1px;background:var(--line)}
+  .step-min{font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+  .step-title{font-size:19px;font-weight:600;line-height:1.5;letter-spacing:-.005em;margin:0}
+  .step-why{margin:8px 0 0;font-size:14.5px;color:var(--text-2);line-height:1.8}
+
+  /* ── 講義カード ───────────────────────────── */
+  .lec{display:block;border:1px solid var(--line);border-radius:var(--r-s);
+    padding:15px var(--s2) 13px;margin-top:10px;text-decoration:none;color:inherit;
+    transition:border-color .15s,background-color .15s}
+  .lec:hover{border-color:var(--brand);background:var(--surface-2)}
+  .lec:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+  .lec-top{display:flex;gap:12px;align-items:flex-start}
+  .lec-title{flex:1;font-size:16px;font-weight:600;line-height:1.65}
+  .lec-min{flex:none;font-size:13px;color:var(--text-2);font-variant-numeric:tabular-nums;
+    padding-top:2px}
+  .lec-course{font-size:12.5px;color:var(--text-2);margin-top:3px}
+  .lec-open{font-size:13px;color:var(--brand);font-weight:600;margin-top:9px}
+  .check{display:flex;align-items:center;gap:9px;margin-top:11px;padding-top:11px;
+    border-top:1px solid var(--line);font-size:13.5px;color:var(--text-2);cursor:pointer}
+  .check input{width:20px;height:20px;accent-color:var(--brand);flex:none}
+  .check{min-height:44px}          /* Appleの推奨タップ領域44pt以上 */
+  .lec{-webkit-tap-highlight-color:rgba(109,57,171,.08)}
+  .lec.done{background:var(--surface-2)}
+  .lec.done .lec-title{color:var(--text-2);text-decoration:line-through;
+    text-decoration-thickness:1px;text-decoration-color:var(--line)}
+  .lec.done .lec-open{visibility:hidden}
+
+  /* ── 注意事項 ───────────────────────────── */
+  .notes{border:1px solid var(--line);border-left:2px solid var(--note);
+    border-radius:0 var(--r-s) var(--r-s) 0;background:var(--note-tint);
+    padding:var(--s2);margin-top:var(--s5)}
+  .notes h2{font-size:14px;margin:0 0 10px;color:var(--note);font-weight:600}
+  .notes ul{margin:0;padding-left:1.15em}
+  .notes li{margin:6px 0;font-size:14px;line-height:1.75}
+
+  footer{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);
+    font-size:13px;color:var(--text-2);line-height:1.9}
+  footer b{color:var(--text);font-weight:600}
+
+  /* サイドバー: スマホでは中身を通常フローへ流し、PCでは独立した右カラムにする */
+  .side{display:contents}
+  @media (min-width:900px){
+    .side{display:block;grid-area:side;position:sticky;top:var(--s3)}
+    .side .summary,.side .aims{margin-bottom:var(--s3)}
+    .side .aims{margin-bottom:0}
+    .toc{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+    .toc h2{font-size:13px;margin:0 0 10px;color:var(--text-2);font-weight:600;letter-spacing:.04em}
+    .toc ol{margin:0;padding:0;list-style:none}
+    .toc li{margin:0}
+    .toc a{display:flex;gap:10px;align-items:baseline;padding:7px 0;
+      font-size:13.5px;color:var(--text);text-decoration:none;line-height:1.5;
+      border-bottom:1px solid transparent;transition:color .15s}
+    .toc a:hover{color:var(--brand)}
+    .toc a:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:3px}
+    .toc .n{flex:none;font-size:11px;color:var(--brand);font-weight:700;
+      font-variant-numeric:tabular-nums;min-width:1.4em}
+    .toc .m{flex:none;margin-left:auto;font-size:12px;color:var(--text-2);
+      font-variant-numeric:tabular-nums}
+    .toc a.current{color:var(--brand);font-weight:600}
+  }
+  .toc{display:none}
+  @media (min-width:900px){ .toc{display:block} }
+
+  /* PCでは講義カードを2列に。文字は据え置き（読みやすさ優先） */
+  @media (min-width:900px){
+    .lec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .lec{margin-top:0}
+    h1{font-size:30px}
+    .step-title{font-size:21px}
+    .step{margin-bottom:var(--s5)}
+    .lec:hover{box-shadow:0 1px 3px rgba(26,26,26,.06)}
+  }
+  @media (min-width:1200px){
+    .wrap{max-width:1120px}
+  }
+
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+  @media (max-width:400px){
+    body{font-size:16px} h1{font-size:23px} .step-title{font-size:18px}
+  }
+</style>
+<div class="wrap" id="app">
+  <div class="top">
+    <div class="brandline">シゴトAI 学習プラン</div>
+    <h1 id="loading">読み込んでいます…</h1>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── URLのフラグメントからデータを復元する ──────────────
+  function inflate(token){
+    // urlsafe base64 → バイト列
+    const b64 = token.replace(/-/g,'+').replace(/_/g,'/')
+                     .padEnd(Math.ceil(token.length/4)*4, '=');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    // zlib(deflate) を展開。DecompressionStream が使えない環境では pako 相当が必要
+    return bytes;
+  }
+
+  async function decode(token){
+    const bytes = inflate(token);
+    const ds = new DecompressionStream('deflate');
+    const stream = new Blob([bytes]).stream().pipeThrough(ds);
+    const text = await new Response(stream).text();
+    return JSON.parse(text);
+  }
+
+  const esc = s => String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+
+  function supportLine(d){
+    if (d.sp) return esc(d.sp);
+    const p = d.p || '';
+    if (/モニター|0円|０円/.test(p))
+      return 'わからないことは、オンライン自習室でお気軽にご質問ください。';
+    return 'わからないことは、LINEまたはオンライン自習室でお気軽にご質問ください。';
+  }
+
+  function render(d){
+    const steps = d.s || [];
+    const count = steps.reduce((n,st)=>n+(st.i||[]).length, 0);
+    const total = steps.reduce((n,st)=>n+(st.i||[]).reduce((m,it)=>m+it[2],0), 0);
+    document.title = `${d.n}さんの学習プラン｜シゴトAI`;
+
+    const toc = steps.map((st,i)=>{
+      const title = String(st.t).replace(/^STEP\s*\d+\s*/,'');
+      const min = (st.i||[]).reduce((m,it)=>m+it[2],0);
+      return `<li><a href="#step${i+1}"><span class="n">${i+1}</span>`
+           + `<span>${esc(title)}</span><span class="m">${min}分</span></a></li>`;
+    }).join('');
+
+    const stepsHtml = steps.map((st,i)=>{
+      const title = String(st.t).replace(/^STEP\s*\d+\s*/,'');
+      const min = (st.i||[]).reduce((m,it)=>m+it[2],0);
+      const lecs = (st.i||[]).map(it=>{
+        const [ttl, lid, mins, course] = it;
+        return `
+      <a class="lec" href="https://shigoto-ai.com/lecture/${esc(lid)}" target="_blank" rel="noopener">
+        <div class="lec-top">
+          <div class="lec-title">${esc(ttl)}</div>
+          <div class="lec-min">${mins}分</div>
+        </div>
+        <div class="lec-course">${esc(course)}</div>
+        <div class="lec-open">タップして講義を見る →</div>
+        <label class="check"><input type="checkbox" data-id="${esc(lid)}" data-min="${mins}">見終わった</label>
+      </a>`;
+      }).join('');
+      return `
+  <section class="step" id="step${i+1}">
+    <div class="step-head">
+      <div class="step-meta">
+        <span class="step-no">STEP ${i+1}</span>
+        <span class="step-rule"></span>
+        <span class="step-min">${min}分</span>
+      </div>
+      <h2 class="step-title">${esc(title)}</h2>
+      <p class="step-why">${esc(st.w)}</p>
+    </div>
+    <div class="lec-grid">${lecs}</div>
+  </section>`;
+    }).join('');
+
+    document.getElementById('app').innerHTML = `
+  <div class="top">
+    <div class="brandline">シゴトAI 学習プラン</div>
+    <h1><span class="nm">${esc(d.n)}</span>さんの<br>おすすめ学習プラン</h1>
+    <p class="lead">${esc(d.d)}の入学後面談でお話しした内容から、${esc(d.n)}さんに合わせて選びました。上から順に進めるのがおすすめです。</p>
+  </div>
+
+  <aside class="side">
+    <div class="summary">
+      <div class="summary-row">
+        <span class="summary-label">このプランの合計</span>
+        <span class="summary-total"><b>${Math.floor(total/60)}</b> 時間 <b>${total%60}</b> 分</span>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="progress-text">見終わった講義　<b id="doneCount">0</b> / ${count} 本　（<b id="doneMin">0</b> 分）</div>
+      ${d.l ? `<div class="goal"><span class="k">目標</span><span class="v">${esc(d.l)} までに 15時間</span></div>` : ''}
+    </div>
+
+    ${(d.g||[]).length ? `<div class="aims">
+      <h2>${esc(d.n)}さんがAIでやりたいこと</h2>
+      <ul>${(d.g||[]).map(g=>`<li>${esc(g)}</li>`).join('')}</ul>
+    </div>` : ''}
+
+    <nav class="toc" aria-label="学習ステップの一覧">
+      <h2>学習ステップ</h2>
+      <ol>${toc}</ol>
+    </nav>
+  </aside>
+
+  <main class="main">
+  ${stepsHtml}
+
+  ${(d.c||[]).length ? `<div class="notes">
+    <h2>気をつけていただきたいこと</h2>
+    <ul>${(d.c||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+  </div>` : ''}
+
+  <footer>
+    このページは<b>${esc(d.n)}さん専用</b>です。<br>
+    ${supportLine(d)}<br>
+    シゴトAI カスタマーサクセス
+  </footer>
+  </main>`;
+
+    // ── 進捗チェック ──────────────────────────
+    const KEY = 'shigotoai-plan-' + (d.n||'').replace(/\s/g,'');
+    const boxes = [...document.querySelectorAll('input[type=checkbox]')];
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) {}
+    function refresh(){
+      let n=0, min=0;
+      boxes.forEach(b=>{
+        const card = b.closest('.lec');
+        if (b.checked) { n++; min += +b.dataset.min; card.classList.add('done'); }
+        else card.classList.remove('done');
+      });
+      document.getElementById('doneCount').textContent = n;
+      document.getElementById('doneMin').textContent = min;
+      document.getElementById('bar').style.width = (count ? n/count*100 : 0) + '%';
+    }
+    boxes.forEach(b=>{
+      if (saved[b.dataset.id]) b.checked = true;
+      b.addEventListener('change', ()=>{
+        saved[b.dataset.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e) {}
+        refresh();
+      });
+    });
+    document.querySelectorAll('.check').forEach(l =>
+      l.addEventListener('click', e => e.stopPropagation()));
+    refresh();
+  }
+
+  function fail(msg){
+    document.getElementById('app').innerHTML = `
+  <div class="top">
+    <div class="brandline">シゴトAI 学習プラン</div>
+    <h1>ページを開けませんでした</h1>
+    <p class="lead">${esc(msg)}<br>
+    お手数ですが、担当者にリンクの再送をご依頼ください。</p>
+  </div>`;
+  }
+
+  const token = location.hash.slice(1);
+  if (!token) { fail('リンクが不完全なようです（データが含まれていません）。'); return; }
+  decode(token).then(render).catch(err => {
+    console.error(err);
+    fail('リンクが途中で切れている可能性があります。');
+  });
+})();
+</script>
