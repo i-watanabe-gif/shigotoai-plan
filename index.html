@@ -343,11 +343,39 @@
   </div>`;
   }
 
-  const token = location.hash.slice(1);
-  if (!token) { fail('リンクが不完全なようです（データが含まれていません）。'); return; }
-  decode(token).then(render).catch(err => {
+  // 保存済みプランを取りに行く。まず raw（コミット直後から読める）、
+  // 落ちたら Pages 側の plans/ を見る。
+  const REPO = 'i-watanabe-gif/shigotoai-plan';
+  async function fetchPlan(slug){
+    const sources = [
+      `https://raw.githubusercontent.com/${REPO}/main/plans/${slug}.json`,
+      `plans/${slug}.json`
+    ];
+    let lastErr;
+    for (const url of sources) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (res.ok) return await res.json();
+        lastErr = new Error(url + ' → HTTP ' + res.status);
+      } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('プランを取得できませんでした');
+  }
+
+  const frag = location.hash.slice(1);
+  if (!frag) { fail('リンクが不完全なようです（データが含まれていません）。'); return; }
+
+  // 2つの形式に対応:
+  //   #p=<slug>   … 保存済みプランを読み込む（短いリンク）
+  //   #<token>    … URL自体にデータが埋め込まれた従来形式
+  const m = frag.match(/^p=([A-Za-z0-9_-]{4,64})$/);
+  const load = m ? fetchPlan(m[1]) : decode(frag);
+
+  load.then(render).catch(err => {
     console.error(err);
-    fail('リンクが途中で切れている可能性があります。');
+    fail(m
+      ? 'プランの読み込みに失敗しました。通信環境をご確認のうえ、少し待って開き直してください。'
+      : 'リンクが途中で切れている可能性があります。');
   });
 })();
 </script>
