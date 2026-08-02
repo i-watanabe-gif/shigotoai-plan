@@ -38,15 +38,36 @@
   </div>
 </div>
 <script>
-// 短縮サービスなどが「#」を「%23」に変換してしまった場合の救済。
-// 例: /shigotoai-plan/%23eNqt...  → /shigotoai-plan/#eNqt... に戻して開き直す。
+// 到達しうる「壊れたURL」を本来の形に戻して開き直す。
+//  (1) /shigotoai-plan/p/<slug>   → /shigotoai-plan/?p=<slug>
+//      パス形式のリンク。Liny などのクリック計測を通しても壊れない形。
+//  (2) /shigotoai-plan/%23eNqt... → /shigotoai-plan/#eNqt...
+//      短縮サービスが「#」を「%23」に変換してしまった場合の救済。
 (function () {
-  var BASE = location.pathname.replace(/\/[^/]*$/, '/');   // 例: /shigotoai-plan/
-  var tail = decodeURIComponent(location.pathname.slice(BASE.length));
+  var ROOT = '/shigotoai-plan/';
+  var path = location.pathname;
+
+  // (1) パス形式 /p/<slug>
+  var m = path.match(/\/p\/([A-Za-z0-9_-]{4,64})\/?$/);
+  if (m) {
+    location.replace(location.origin + ROOT + '?p=' + m[1]);
+    return;
+  }
+
+  // (2) %23 で潰されたフラグメントの救済
+  var BASE = path.replace(/\/[^/]*$/, '/');                // 例: /shigotoai-plan/
+  var tail = decodeURIComponent(path.slice(BASE.length));
   var token = tail.replace(/^[#/]+/, '');                  // 先頭の # や / を除去
 
   // フラグメントに既にトークンがある場合はそちらを優先
   if (location.hash.length > 1) token = location.hash.slice(1);
+
+  // 「p=<slug>」形式が %23 越しに来た場合
+  var ps = token.match(/^p=([A-Za-z0-9_-]{4,64})$/);
+  if (ps) {
+    location.replace(location.origin + ROOT + '?p=' + ps[1]);
+    return;
+  }
 
   // Base64URLらしき十分な長さの文字列だけを受け付ける（無限リダイレクト防止）
   if (/^[A-Za-z0-9_-]{40,}$/.test(token)) {
