@@ -362,18 +362,36 @@
     throw lastErr || new Error('プランを取得できませんでした');
   }
 
-  const frag = location.hash.slice(1);
-  if (!frag) { fail('リンクが不完全なようです（データが含まれていません）。'); return; }
+  // slug の受け取り口を3つ用意する。
+  //   ?p=<slug>      … 本命。LINE / Liny のクリック計測を通しても壊れない
+  //   /p/<slug>      … 404.html が ?p= に書き換えて到達する
+  //   #p=<slug>      … 旧形式。既に送信済みのリンクを死なせないため残す
+  // Liny は配信時に URL をトラッキングリンクへ置き換える。その際
+  // 「#」以降（フラグメント）はサーバに送られず落ちるため、#p= だと
+  // 生徒側で 400 / 空ページになる。2026-08-02 に派遣さんから報告あり。
+  const SLUG_RE = /^[A-Za-z0-9_-]{4,64}$/;
 
-  // 2つの形式に対応:
-  //   #p=<slug>   … 保存済みプランを読み込む（短いリンク）
-  //   #<token>    … URL自体にデータが埋め込まれた従来形式
-  const m = frag.match(/^p=([A-Za-z0-9_-]{4,64})$/);
-  const load = m ? fetchPlan(m[1]) : decode(frag);
+  function pickSlug(){
+    const q = new URLSearchParams(location.search).get('p');
+    if (q && SLUG_RE.test(q)) return q;
+    const path = location.pathname.match(/\/p\/([A-Za-z0-9_-]{4,64})\/?$/);
+    if (path) return path[1];
+    const h = location.hash.slice(1).match(/^p=([A-Za-z0-9_-]{4,64})$/);
+    if (h) return h[1];
+    return null;
+  }
+
+  const slug = pickSlug();
+  // データ埋め込み形式（保存に失敗したときの代替URL）。?d= が本命、# は旧形式。
+  const embedded = new URLSearchParams(location.search).get('d') || location.hash.slice(1);
+
+  if (!slug && !embedded) { fail('リンクが不完全なようです（データが含まれていません）。'); return; }
+
+  const load = slug ? fetchPlan(slug) : decode(embedded);
 
   load.then(render).catch(err => {
     console.error(err);
-    fail(m
+    fail(slug
       ? 'プランの読み込みに失敗しました。通信環境をご確認のうえ、少し待って開き直してください。'
       : 'リンクが途中で切れている可能性があります。');
   });
