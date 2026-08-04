@@ -264,7 +264,7 @@
   <div class="top">
     <div class="brandline">シゴトAI 学習プラン</div>
     <h1><span class="nm">${esc(d.n)}</span>さんの<br>おすすめ学習プラン</h1>
-    <p class="lead">${esc(d.d)}の入学後面談でお話しした内容から、${esc(d.n)}さんに合わせて選びました。上から順に進めるのがおすすめです。</p>
+    <p class="lead">${d.d ? esc(d.d) + 'の' : ''}入学後面談でお話しした内容から、${esc(d.n)}さんに合わせて選びました。上から順に進めるのがおすすめです。</p>
   </div>
 
   <aside class="side">
