@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>学習プランを読み込んでいます｜シゴトAI</title>
+<style>
+  :root { --brand:#6D39AB; --text:#1A1A1A; --text-2:#6C6C6C; --line:#E3E3E3; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px; background:#fff; color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    line-height:1.8;
+  }
+  .box { max-width:420px; text-align:center; }
+  .spinner {
+    width:28px; height:28px; margin:0 auto 20px; border-radius:50%;
+    border:3px solid var(--line); border-top-color:var(--brand);
+    animation:spin .9s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion:reduce) { .spinner { animation-duration:3s; } }
+  h1 { font-size:17px; font-weight:600; margin:0 0 8px; }
+  p { font-size:14px; color:var(--text-2); margin:0 0 6px; }
+  .hint { margin-top:20px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="spinner" id="sp"></div>
+  <h1 id="msg">学習プランを読み込んでいます…</h1>
+  <p id="sub">そのままお待ちください。</p>
+  <div class="hint" id="hint" hidden>
+    <p>リンクが途中で切れている可能性があります。<br>
+    お手数ですが、担当者にリンクの再送をご依頼ください。</p>
+  </div>
+</div>
+<script>
+// 到達しうる「壊れたURL」を本来の形に戻して開き直す。
+//  (1) /shigotoai-plan/p/<slug>   → /shigotoai-plan/?p=<slug>
+//      パス形式のリンク。Liny などのクリック計測を通しても壊れない形。
+//  (2) /shigotoai-plan/%23eNqt... → /shigotoai-plan/#eNqt...
+//      短縮サービスが「#」を「%23」に変換してしまった場合の救済。
+(function () {
+  var ROOT = '/shigotoai-plan/';
+  var path = location.pathname;
+
+  // (1) パス形式 /p/<slug>
+  var m = path.match(/\/p\/([A-Za-z0-9_-]{4,64})\/?$/);
+  if (m) {
+    location.replace(location.origin + ROOT + '?p=' + m[1]);
+    return;
+  }
+
+  // (2) %23 で潰されたフラグメントの救済
+  var BASE = path.replace(/\/[^/]*$/, '/');                // 例: /shigotoai-plan/
+  var tail = decodeURIComponent(path.slice(BASE.length));
+  var token = tail.replace(/^[#/]+/, '');                  // 先頭の # や / を除去
+
+  // フラグメントに既にトークンがある場合はそちらを優先
+  if (location.hash.length > 1) token = location.hash.slice(1);
+
+  // 「p=<slug>」形式が %23 越しに来た場合
+  var ps = token.match(/^p=([A-Za-z0-9_-]{4,64})$/);
+  if (ps) {
+    location.replace(location.origin + ROOT + '?p=' + ps[1]);
+    return;
+  }
+
+  // Base64URLらしき十分な長さの文字列だけを受け付ける（無限リダイレクト防止）
+  if (/^[A-Za-z0-9_-]{40,}$/.test(token)) {
+    var dest = location.origin + BASE + '#' + token;
+    if (dest !== location.href) { location.replace(dest); return; }
+  }
+
+  document.getElementById('sp').hidden = true;
+  document.getElementById('msg').textContent = 'ページが見つかりませんでした';
+  document.getElementById('sub').textContent = '';
+  document.getElementById('hint').hidden = false;
+})();
+</script>
+</body>
+</html>
