@@ -288,7 +288,10 @@
       "m": 9,
       "c": "Perplexity",
       "s": "2025年最新AI検索エンジン**「Perplexity」**の基礎と仕組みを解説。",
-      "ai": "Perplexity"
+      "ai": "Perplexity",
+      "tags": [
+        "リサーチ・分析"
+      ]
     },
     {
       "id": "85",
@@ -296,7 +299,10 @@
       "m": 10,
       "c": "Perplexity",
       "s": "Perplexityの最新AIブラウザ「Comet」エージェント機能を徹底活用し、",
-      "ai": "Perplexity"
+      "ai": "Perplexity",
+      "tags": [
+        "リサーチ・分析"
+      ]
     },
     {
       "id": "93",
